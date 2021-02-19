@@ -264,8 +264,7 @@ class ROIPooler(nn.Module):
             
             boxes[boxes[:,3] >= feats[0].shape[-1],3] = feats[0].shape[-1]-1
             boxes[boxes[:,4] >= feats[0].shape[-2],4] = feats[0].shape[-2]-1
-            mask = torch.logical_and((boxes[:,3]-boxes[:,1]) > 1,(boxes[:,4]-boxes[:,2]) > 1)
-            boxes=boxes[mask]
+            
             if boxes.shape[0] < 1:
                 continue
             
