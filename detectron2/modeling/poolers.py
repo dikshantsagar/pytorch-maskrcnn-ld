@@ -284,7 +284,7 @@ class ROIPooler(nn.Module):
                 crops,boxes = self.fixed_learnable_downsample(crops,boxes, out_shape=self.output_size, device=device)
                 output[inds] = pooler(crops,boxes,1.0)
         
-        output = torch.cat(output,0)
+        
         return output
     def outShape(self,x,stride,kernel):
         x_out = torch.floor((x-kernel)/(stride*1.0)+1)
