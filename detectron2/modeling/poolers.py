@@ -270,7 +270,7 @@ class ROIPooler(nn.Module):
             
             height = boxes[:,4] - boxes[:,2] + 1
             width = boxes[:,3] - boxes[:,1] + 1
-            max_h,max_w = torch.max(torch.max(height),0)[0], torch.max(torch.max(width),0)[0]
+            max_h,max_w = torch.max(torch.max(height),3)[0], torch.max(torch.max(width),3)[0]
             crops = torch.zeros((boxes.shape[0],256,max_h,max_w),device=device,dtype=torch.float32)
             for i in  range(boxes.shape[0]): 
                 ind,x0,y0,x1,y1 = boxes[i]
