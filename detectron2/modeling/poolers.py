@@ -264,7 +264,8 @@ class ROIPooler(nn.Module):
             
             boxes[boxes[:,3] >= feats[0].shape[-1],3] = feats[0].shape[-1]-1
             boxes[boxes[:,4] >= feats[0].shape[-2],4] = feats[0].shape[-2]-1
-            
+            mask = torch.logical_and((boxes[:,3]-boxes[:,1]) > 1,(boxes[:,4]-boxes[:,2]) > 1)
+            #boxes=boxes[mask]
             if boxes.shape[0] < 1:
                 continue
             
@@ -287,11 +288,11 @@ class ROIPooler(nn.Module):
         
         return output
     def outShape(self,x,stride,kernel):
-        x_out = torch.floor((x-kernel)/(stride*1.0)+1)
+        x_out = torch.floor((x-kernel)/(stride*1.0)+1) - 2
         return x_out.type(torch.int32)
     def hwOut(self,hin,win,strides=(1,1),kernel=(3,3)):
-        hout = self.outShape(hin,strides[0],kernel[0])
-        wout = self.outShape(win,strides[1],kernel[1])
+        hout = self.outShape(hin,strides[0],kernel[0]) + 2
+        wout = self.outShape(win,strides[1],kernel[1]) + 2
         return hout,wout
     def rcConv(self,x,box_x):
         x1 = self.reclayer(x)
@@ -303,8 +304,8 @@ class ROIPooler(nn.Module):
     def fixed_learnable_downsample(self, features,boxes, out_shape=(7,7),kernel_size=(3,3),strides=(2,2),device=None):
         # start edit 3
         #mask_omit = torch.ones((boxes.shape[0]),dtype=torch.bool,device=device)
-        result_x = torch.zeros(features.size(),dtype=torch.float,device=device)
-        result_box = torch.zeros(boxes.size(),device=device,dtype=torch.long)
+        #result_x = torch.zeros(features.size(),dtype=torch.float,device=device)
+        #result_box = torch.zeros(boxes.size(),device=device,dtype=torch.long)
         #N,c,m,n = features.shape
         features_ = features
         boxes_ = boxes
@@ -318,8 +319,9 @@ class ROIPooler(nn.Module):
             indexes_ = indexes[mask]
             finalized =  indexes[mask_not]
             # port finalized to results
-            result_x[finalized,:,:features_.shape[2],:features_.shape[3]] = features_[mask_not,:,:,:]
-            result_box[finalized,:] = boxes_[mask_not,:]
+            features[finalized,:,:features_.shape[2],:features_.shape[3]] = features_[mask_not,:,:,:]
+            boxes[finalized,:] = boxes_[mask_not,:]
             features_,boxes_ = self.rcConv(features_[mask],boxes_[mask])
             indexes = indexes_
-        return result_x,result_box
+        return features, boxes
+
