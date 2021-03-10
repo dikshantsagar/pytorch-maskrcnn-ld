@@ -147,10 +147,9 @@ class ROIPooler(nn.Module):
         self.fixed = fixed
 
 
-        self.reclayer = nn.Conv2d(256, 256*2, kernel_size=(3,3), stride=(2,2), bias=False)
+        self.reclayer = nn.Conv2d(256, 256*2, kernel_size=(3,3), stride=(1,1), bias=False)
         self.outlayer = nn.Conv2d(256*2, 256, kernel_size=(1,1), bias = False)
-        
-        self.var_outlayer = nn.Conv2d(256,256, kernel_size=(2,2), stride=(1,1))
+     
 
         if pooler_type == "ROIAlign":
             self.level_poolers = nn.ModuleList(
@@ -298,10 +297,10 @@ class ROIPooler(nn.Module):
         x1 = self.reclayer(x)
         x1 = self.outlayer(x1)
         #x1 = padding(x1)
-        box_x[:,-1],box_x[:,-2] = self.hwOut(box_x[:,-1],box_x[:,-2],strides=(2,2),kernel=(3,3))
+        box_x[:,-1],box_x[:,-2] = self.hwOut(box_x[:,-1],box_x[:,-2],strides=(1,1),kernel=(3,3))
         #make box changes
         return x1,box_x
-    def fixed_learnable_downsample(self, features,boxes, out_shape=(7,7),kernel_size=(3,3),strides=(2,2),device=None):
+    def fixed_learnable_downsample(self, features,boxes, out_shape=(7,7),kernel_size=(3,3),strides=(1,1),device=None):
         
         features_ = features
         boxes_ = boxes
