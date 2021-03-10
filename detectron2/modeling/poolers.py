@@ -146,9 +146,9 @@ class ROIPooler(nn.Module):
         self.output_size = output_size
         self.fixed = fixed
 
-        self.inlayer = nn.Conv2d(256, 256*2, kernel_size=(1,1), padding=0)
-        self.reclayer = nn.Conv2d(256, 256*2, kernel_size=(3,3), stride=(2,2), padding=0)
-        self.outlayer = nn.Conv2d(256*2, 256, kernel_size=(1,1))
+
+        self.reclayer = nn.Conv2d(256, 256*2, kernel_size=(3,3), stride=(2,2), bias=False)
+        self.outlayer = nn.Conv2d(256*2, 256, kernel_size=(1,1), bias = False)
         
         self.var_outlayer = nn.Conv2d(256,256, kernel_size=(2,2), stride=(1,1))
 
@@ -302,11 +302,7 @@ class ROIPooler(nn.Module):
         #make box changes
         return x1,box_x
     def fixed_learnable_downsample(self, features,boxes, out_shape=(7,7),kernel_size=(3,3),strides=(2,2),device=None):
-        # start edit 3
-        #mask_omit = torch.ones((boxes.shape[0]),dtype=torch.bool,device=device)
-        #result_x = torch.zeros(features.size(),dtype=torch.float,device=device)
-        #result_box = torch.zeros(boxes.size(),device=device,dtype=torch.long)
-        #N,c,m,n = features.shape
+        
         features_ = features
         boxes_ = boxes
         indexes = torch.arange(boxes.shape[0])
@@ -324,4 +320,3 @@ class ROIPooler(nn.Module):
             features_,boxes_ = self.rcConv(features_[mask],boxes_[mask])
             indexes = indexes_
         return features, boxes
-
